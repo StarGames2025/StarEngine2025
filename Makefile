@@ -3,7 +3,6 @@ SRC_DIR = src
 BIN_DIR = bin
 OUTPUT = $(BIN_DIR)/$(PROJECT_NAME).exe
 
-# Define a version file and its initial version
 VERSION_FILE = version.txt
 VERSION = $(shell cat $(VERSION_FILE) 2>/dev/null || echo "0.0.0")
 
@@ -24,7 +23,6 @@ compile:
 run: 
 	mono $(OUTPUT)
 
-# Increment the PATCH version
 increment-version:
 	@echo "Current version: $(VERSION)"
 	@echo "Incrementing PATCH version..."
