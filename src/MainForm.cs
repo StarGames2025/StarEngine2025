@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace StarEngine2025
 {
@@ -13,18 +15,71 @@ namespace StarEngine2025
             Size = new System.Drawing.Size(800, 600);
             StartPosition = FormStartPosition.CenterScreen;
 
-            this.Icon = new System.Drawing.Icon("source/icons/AppIcons/AppIcon.ico");
+            string relativePath = "../source/icons/AppIcons/AppIcon.ico";
+            string combinedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            string iconPath = Path.GetFullPath(combinedPath);
+            //Console.WriteLine($"Icon-Pfad: {iconPath}");
+
+            try
+            {
+                if (File.Exists(iconPath))
+                {
+                    this.Icon = new Icon(iconPath);
+                }
+                else
+                {
+                    MessageBox.Show("Die Icon-Datei wurde nicht gefunden: " + iconPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler beim Laden des Icons: " + ex.Message);
+            }
+
+
 
             var menuStrip = new MenuStrip();
             var fileMenu = new ToolStripMenuItem("Datei");
             fileMenu.DropDownItems.Add("Neues Projekt", null, NewProject);
             fileMenu.DropDownItems.Add("Projekt öffnen", null, OpenProject);
+            fileMenu.DropDownItems.Add("Einstellungen", null, (s, e) => SettingsLogic.OpenSettings(this));
             fileMenu.DropDownItems.Add("Beenden", null, (s, e) => Application.Exit());
             menuStrip.Items.Add(fileMenu);
             MainMenuStrip = menuStrip;
             Controls.Add(menuStrip);
 
             InitializeEditor();
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+            if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StarEngineSettings.txt")))
+            {
+                string[] settings = File.ReadAllLines(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StarEngineSettings.txt"));
+                if (settings.Length > 0)
+                {
+                    string theme = settings[0];
+                    SettingsLogic.ApplyStyle(theme, this);
+                    SettingsLogic.ApplyStyle(theme, codeTextBox);
+
+                    if (settings.Length > 1)
+                    {
+                        string fontFamily = settings[1];
+                        try
+                        {
+                            var font = new Font(fontFamily, 12);
+                            this.Font = font;
+                            codeTextBox.Font = font;
+                        }
+                        catch (Exception)
+                        {
+                            this.Font = SystemFonts.DefaultFont;
+                            codeTextBox.Font = SystemFonts.DefaultFont;
+                        }
+                    }
+                }
+            }
         }
 
         private void InitializeEditor()
@@ -43,7 +98,7 @@ namespace StarEngine2025
             string projectName = Prompt.ShowDialog("Projektname:", "Neues Projekt");
             if (!string.IsNullOrEmpty(projectName))
             {
-                ProjectLogic.CreateProject(projectName, this);
+                ProjectLogic.CreateProject(projectName);
                 codeTextBox.Text = "Neues Projekt erstellt: " + projectName;
             }
         }
@@ -57,7 +112,7 @@ namespace StarEngine2025
 
                 if (openFileDialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    string projectData = ProjectLogic.LoadProject(openFileDialog.FileName, this);
+                    string projectData = ProjectLogic.LoadProject(openFileDialog.FileName);
                     if (projectData != null)
                     {
                         codeTextBox.Text = projectData;

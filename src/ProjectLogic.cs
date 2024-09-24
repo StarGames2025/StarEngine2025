@@ -16,7 +16,7 @@ namespace StarEngine2025
             }
         }
 
-        public static void CreateProject(string projectName, IWin32Window owner)
+        public static void CreateProject(string projectName)
         {
             string projectFilePath = Path.Combine(projectsDirectory, $"{projectName}.sge");
 
@@ -37,7 +37,7 @@ namespace StarEngine2025
             }
         }
 
-        public static string LoadProject(string projectPath, IWin32Window owner)
+        public static string LoadProject(string projectPath)
         {
             try
             {

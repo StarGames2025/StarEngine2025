@@ -1,0 +1,5 @@
+BackgroundColor: 45, 45, 48
+TextColor: 255, 255, 255
+FontFamily: Arial
+FontSize: 12
+FontStyle: 0  // Regular
