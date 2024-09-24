@@ -17,10 +17,10 @@ StarEngine2025 ist ein benutzerfreundlicher Game-Editor, der in C# entwickelt wu
 2. Stelle sicher, dass du [Mono](https://www.mono-project.com/download/stable/) installiert hast, um C#-Anwendungen auf Linux auszuführen.
 3. Führe das Setup-Skript aus, um das Projekt zu erstellen:
 
-   ```bash
+```bash
    chmod +x setup.sh
    ./setup.sh
-   ```
+```
 
 ## Verwendung
 
