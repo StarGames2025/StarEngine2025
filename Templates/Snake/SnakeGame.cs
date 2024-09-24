@@ -1,178 +1,86 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+using System.Drawing;
+using System.Windows.Forms;
 
-namespace SnakeGame
+public class SnakeGame : Form
 {
-    class Program
+    private Timer timer;
+    private List<Point> snake;
+    private Point food;
+    private int direction;
+    private Random random;
+
+    public SnakeGame()
     {
-        static void Main(string[] args)
-        {
-            Game game = new Game();
-            game.Start();
-        }
+        this.DoubleBuffered = true;
+        this.Width = 400;
+        this.Height = 400;
+
+        snake = new List<Point> { new Point(5, 5) };
+        random = new Random();
+        food = GenerateFood();
+        direction = 1;
+
+        timer = new Timer();
+        timer.Interval = 100;
+        timer.Tick += new EventHandler(Update);
+        timer.Start();
+
+        this.KeyDown += new KeyEventHandler(OnKeyDown);
     }
 
-    class Game
+    protected override void OnPaint(PaintEventArgs e)
     {
-        private const int Width = 20;
-        private const int Height = 20;
-        private const int InitialSnakeLength = 3;
-        private bool gameOver;
-        private Direction currentDirection;
-        private List<Position> snake;
-        private Position food;
-        private Random random;
+        foreach (var point in snake)
+            e.Graphics.FillRectangle(Brushes.Green, point.X * 10, point.Y * 10, 10, 10);
 
-        public Game()
+        e.Graphics.FillRectangle(Brushes.Red, food.X * 10, food.Y * 10, 10, 10);
+    }
+
+    private void Update(object sender, EventArgs e)
+    {
+        Point head = snake[0];
+        Point newHead = head;
+
+        switch (direction)
         {
-            random = new Random();
-            snake = new List<Position>();
-            currentDirection = Direction.Right;
-            gameOver = false;
-            InitializeSnake();
-            GenerateFood();
+            case 1: newHead.X++; break;
+            case 2: newHead.Y++; break;
+            case 3: newHead.X--; break;
+            case 4: newHead.Y--; break;
         }
 
-        public void Start()
+        snake.Insert(0, newHead);
+        
+        if (newHead == food)
         {
-            while (!gameOver)
-            {
-                Draw();
-                Input();
-                Logic();
-                Thread.Sleep(100);
-            }
-
-            Console.Clear();
-            Console.SetCursorPosition(Width / 2 - 5, Height / 2);
-            Console.WriteLine("Game Over!");
+            food = GenerateFood();
+        }
+        else
+        {
+            snake.RemoveAt(snake.Count - 1);
         }
 
-        private void InitializeSnake()
-        {
-            for (int i = 0; i < InitialSnakeLength; i++)
-            {
-                snake.Add(new Position(Width / 2 - i, Height / 2));
-            }
-        }
+        Invalidate();
+    }
 
-        private void GenerateFood()
-        {
-            food = new Position(random.Next(0, Width), random.Next(0, Height));
-        }
+    private Point GenerateFood()
+    {
+        return new Point(random.Next(0, this.Width / 10), random.Next(0, this.Height / 10));
+    }
 
-        private void Draw()
-        {
-            Console.Clear();
-            Console.SetCursorPosition(0, 0);
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Right && direction != 3) direction = 1;
+        else if (e.KeyCode == Keys.Down && direction != 4) direction = 2;
+        else if (e.KeyCode == Keys.Left && direction != 1) direction = 3;
+        else if (e.KeyCode == Keys.Up && direction != 2) direction = 4;
+    }
 
-            for (int y = 0; y <= Height; y++)
-            {
-                for (int x = 0; x <= Width; x++)
-                {
-                    if (x == 0 || x == Width || y == 0 || y == Height)
-                    {
-                        Console.Write("#");
-                    }
-                    else if (snake.Any(s => s.X == x && s.Y == y))
-                    {
-                        Console.Write("O");
-                    }
-                    else if (food.X == x && food.Y == y)
-                    {
-                        Console.Write("F");
-                    }
-                    else
-                    {
-                        Console.Write(" ");
-                    }
-                }
-                Console.WriteLine();
-            }
-        }
-
-        private void Input()
-        {
-            if (Console.KeyAvailable)
-            {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-                switch (keyInfo.Key)
-                {
-                    case ConsoleKey.W:
-                        if (currentDirection != Direction.Down) currentDirection = Direction.Up;
-                        break;
-                    case ConsoleKey.S:
-                        if (currentDirection != Direction.Up) currentDirection = Direction.Down;
-                        break;
-                    case ConsoleKey.A:
-                        if (currentDirection != Direction.Right) currentDirection = Direction.Left;
-                        break;
-                    case ConsoleKey.D:
-                        if (currentDirection != Direction.Left) currentDirection = Direction.Right;
-                        break;
-                }
-            }
-        }
-
-        private void Logic()
-        {
-            Position head = snake.First();
-            Position newHead = new Position(head.X, head.Y);
-
-            switch (currentDirection)
-            {
-                case Direction.Up:
-                    newHead.Y--;
-                    break;
-                case Direction.Down:
-                    newHead.Y++;
-                    break;
-                case Direction.Left:
-                    newHead.X--;
-                    break;
-                case Direction.Right:
-                    newHead.X++;
-                    break;
-            }
-
-            if (newHead.X >= Width || newHead.X < 0 || newHead.Y >= Height || newHead.Y < 0 || snake.Skip(1).Any(s => s.X == newHead.X && s.Y == newHead.Y))
-            {
-                gameOver = true;
-                return;
-            }
-
-            snake.Insert(0, newHead);
-
-            if (newHead.X == food.X && newHead.Y == food.Y)
-            {
-                GenerateFood();
-            }
-            else
-            {
-                snake.RemoveAt(snake.Count - 1);
-            }
-        }
-
-        private enum Direction
-        {
-            Up,
-            Down,
-            Left,
-            Right
-        }
-
-        private struct Position
-        {
-            public int X;
-            public int Y;
-
-            public Position(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-        }
+    [STAThread]
+    public static void Main()
+    {
+        Application.Run(new SnakeGame());
     }
 }
