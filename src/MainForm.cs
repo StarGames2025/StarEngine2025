@@ -13,6 +13,8 @@ namespace StarEngine2025
             Size = new System.Drawing.Size(800, 600);
             StartPosition = FormStartPosition.CenterScreen;
 
+            this.Icon = new System.Drawing.Icon("source/icons/AppIcons/AppIcon.ico");
+
             var menuStrip = new MenuStrip();
             var fileMenu = new ToolStripMenuItem("Datei");
             fileMenu.DropDownItems.Add("Neues Projekt", null, NewProject);
