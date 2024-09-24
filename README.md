@@ -1,4 +1,3 @@
-```markdown
 # StarEngine2025
 
 StarEngine2025 ist ein benutzerfreundlicher Game-Editor, der in C# entwickelt wurde und speziell für die Erstellung von 2D-Spielen ausgelegt ist. Diese Engine ermöglicht es Entwicklern, Spiele mit einer Vielzahl von Vorlagen zu erstellen und bietet eine einfache Benutzeroberfläche zur Verwaltung von Projekten.
@@ -57,4 +56,3 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe die [LICENSE](LICENSE)
 ## Kontakt
 
 Für Fragen oder Feedback kannst du mich unter [deine.email@example.com](mailto:starcrusher2025@gmail.com) kontaktieren.
-```
