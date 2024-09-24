@@ -15,7 +15,7 @@ SRC_FILES = $(SRC_DIR)/Program.cs \
 all: compile run
 
 compile:
-	mcs -out:$(OUTPUT) -r:System.Windows.Forms -r:System.Drawing -r:Microsoft.CodeAnalysis.CSharp.Scripting -r:Microsoft.CodeAnalysis.Scripting $(SRC_FILES)
+	mcs -out:$(OUTPUT) -r:System.Windows.Forms -r:System.Drawing $(SRC_FILES)
 
 run: 
 	mono $(OUTPUT)

@@ -1,22 +1,63 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
 
 namespace StarEngine2025
 {
     public static class CodeExecutionLogic
     {
-        public static async System.Threading.Tasks.Task ExecuteCodeAsync(string code, IWin32Window owner)
+        public static void ExecuteCode(string code, IWin32Window owner)
         {
-            try
+            string tempFilePath = Path.Combine(Path.GetTempPath(), "TempCode.cs");
+            File.WriteAllText(tempFilePath, code);
+
+            var processInfo = new ProcessStartInfo
             {
-                var result = await CSharpScript.EvaluateAsync(code);
-                MessageBox.Show($"Ergebnis: {result}", "Code Ergebnis", MessageBoxButtons.OK);
+                FileName = "mcs",
+                Arguments = $"-out:TempCode.exe {tempFilePath}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(processInfo))
+            {
+                process.WaitForExit();
+
+                string errorOutput = process.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errorOutput))
+                {
+                    MessageBox.Show($"Fehler beim Kompilieren: {errorOutput}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
-            catch (Exception ex)
+
+            processInfo = new ProcessStartInfo
             {
-                MessageBox.Show($"Fehler beim Ausführen des Codes: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FileName = "mono",
+                Arguments = "TempCode.exe",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(processInfo))
+            {
+                string output = process.StandardOutput.ReadToEnd();
+                string errorOutput = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                if (!string.IsNullOrEmpty(errorOutput))
+                {
+                    MessageBox.Show($"Fehler beim Ausführen: {errorOutput}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show($"Ausgabe:\n{output}", "Ergebnis", MessageBoxButtons.OK);
+                }
             }
         }
     }
