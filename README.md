@@ -1,58 +1,74 @@
 # StarEngine2025
 
-StarEngine2025 ist ein benutzerfreundlicher Game-Editor, der in C# entwickelt wurde und speziell für die Erstellung von 2D-Spielen ausgelegt ist. Diese Engine ermöglicht es Entwicklern, Spiele mit einer Vielzahl von Vorlagen zu erstellen und bietet eine einfache Benutzeroberfläche zur Verwaltung von Projekten.
+**StarEngine2025** ist eine flexible und erweiterbare Game Engine, die es Entwicklern ermöglicht, 2D-Spiele einfach zu erstellen und zu bearbeiten. Die Engine bietet eine benutzerfreundliche Oberfläche zur Codeausführung, Projektverwaltung und Anpassung der Benutzeroberfläche.
+
+## Inhaltsverzeichnis
+
+- [Features](#features)
+- [Installation](#installation)
+- [Verwendung](#verwendung)
+- [Projektstruktur](#projektstruktur)
+- [Beitrag leisten](#beitrag-leisten)
+- [Lizenz](#lizenz)
+- [Kontakt](#kontakt)
 
 ## Features
 
-- **Intuitive Benutzeroberfläche**: Einfaches Erstellen, Öffnen und Speichern von Projekten.
-- **Vorlagen für Spiele**: Beginne mit vorgefertigten Vorlagen für verschiedene Spieltypen wie Pong, Snake, Plattformspiele und Schießspiele.
-- **Syntax-Hervorhebung**: Unterstützt grundlegende Syntax-Hervorhebung im Texteditor.
-- **Einstellungen**: Benutzer können ihre Präferenzen speichern.
-- **Projekt-Export**: Projekte können exportiert oder komprimiert werden.
+- **Codeausführung**: Kompiliert und führt C#-Code in Echtzeit aus.
+- **Projektverwaltung**: Erstellen, Speichern und Laden von Spielprojekten.
+- **Einstellungen**: Anpassung von Farbschemata und Schriftarten.
+- **Benutzeroberfläche**: Intuitive UI mit Unterstützung für Dunkel- und Hellmodus.
+- **Vorlagen**: Unterstützung für vorgefertigte Spielvorlagen.
 
 ## Installation
 
-1. Klone das Repository oder lade die ZIP-Datei herunter.
-2. Stelle sicher, dass du [Mono](https://www.mono-project.com/download/stable/) installiert hast, um C#-Anwendungen auf Linux auszuführen.
-3. Führe das Setup-Skript aus, um das Projekt zu erstellen:
+1. Klone das Repository:
+   ```bash
+   git clone https://github.com/StarGames2025/StarEngine2025.git
+   ```
+   
+2. Navigiere in das Projektverzeichnis:
+   ```bash
+   cd StarEngine2025
+   ```
 
-```bash
-   chmod +x setup.sh
-   ./setup.sh
-```
+3. Stelle sicher, dass die notwendigen Abhängigkeiten (z.B. Mono) installiert sind. 
+
+4. Baue das Projekt mit dem folgenden Befehl (Voraussetzung: Mono Compiler muss installiert sein):
+   ```bash
+   mcs -out:StarEngine2025.exe Program.cs MainForm.cs CodeExecutionLogic.cs EditorLogic.cs ProjectLogic.cs ProjectTreeLogic.cs SettingsLogic.cs TemplateLogic.cs
+   ```
+
+5. Starte die Anwendung:
+   ```bash
+   mono StarEngine2025.exe
+   ```
 
 ## Verwendung
 
-1. Starte die Anwendung, indem du die kompilierte `.exe`-Datei im `bin`-Verzeichnis ausführst.
-2. Erstelle ein neues Projekt über das Menü "Datei".
-3. Wähle eine Vorlage aus, um dein Spiel zu starten.
-4. Bearbeite den Code im integrierten Editor.
-5. Speichere dein Projekt im `.se25`-Format.
-6. Nutze die Einstellungen, um persönliche Präferenzen anzupassen.
+- **Neues Projekt erstellen**: Wählen Sie im Menü "Datei" die Option "Neues Projekt" und geben Sie den Projektnamen ein.
+- **Projekt öffnen**: Um ein bestehendes Projekt zu öffnen, wählen Sie "Projekt öffnen" aus dem Menü.
+- **Codeausführung**: Geben Sie den C#-Code in das Textfeld ein und verwenden Sie die Ausführungsoptionen, um den Code zu kompilieren und auszuführen.
+- **Einstellungen**: Passen Sie das Erscheinungsbild der Anwendung über das Menü "Einstellungen" an.
 
-## Vorlagen
+## Beitrag leisten
 
-Die folgenden Spielvorlagen sind verfügbar:
+Beiträge sind willkommen! Bitte folgen Sie diesen Schritten:
 
-- **Pong**: Ein klassisches Pong-Spiel.
-- **Snake**: Ein einfaches Snake-Spiel.
-- **Plattformspiel**: Ein grundlegendes Plattformspiel.
-- **Schießspiel**: Ein einfaches Schießspiel.
-
-Jede Vorlage enthält grundlegenden Code und kann an deine Bedürfnisse angepasst werden.
-
-## Kontribution
-
-Du kannst zur Entwicklung von StarEngine2025 beitragen, indem du:
-
-- Fehler berichtest.
-- Pull-Requests für neue Funktionen oder Verbesserungen einreichst.
-- Dokumentation verbesserst.
+1. Forken Sie das Repository.
+2. Erstellen Sie einen neuen Branch (`git checkout -b feature-xyz`).
+3. Nehmen Sie Ihre Änderungen vor und committen Sie diese (`git commit -m 'Add some feature'`).
+4. Pushen Sie Ihren Branch (`git push origin feature-xyz`).
+5. Erstellen Sie einen Pull-Request.
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe die [LICENSE](LICENSE)-Datei für weitere Informationen.
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe die [LICENSE](LICENSE) Datei für Details.
 
 ## Kontakt
 
-Für Fragen oder Feedback kannst du mich unter [deine.email@example.com](mailto:starcrusher2025@gmail.com) kontaktieren.
+Für Fragen oder Anregungen wenden Sie sich bitte an:
+- **E-Mail**: [support@stargames2025.com](mailto:support@stargames2025.com)
+- **GitHub**: [StarGames2025](https://github.com/StarGames2025)
+
+---
