@@ -64,11 +64,4 @@ Beiträge sind willkommen! Bitte folgen Sie diesen Schritten:
 ## Lizenz
 
 Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe die [LICENSE](LICENSE) Datei für Details.
-
-## Kontakt
-
-Für Fragen oder Anregungen wenden Sie sich bitte an:
-- **E-Mail**: [support@stargames2025.com](mailto:support@stargames2025.com)
-- **GitHub**: [StarGames2025](https://github.com/StarGames2025)
-
 ---
