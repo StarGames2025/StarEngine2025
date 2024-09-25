@@ -1,13 +1,14 @@
 using System;
 using System.IO;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace StarEngine2025
 {
     public class MainForm : Form
     {
         private TextBox codeTextBox;
+        private Panel editorPanel;
 
         public MainForm()
         {
@@ -18,7 +19,6 @@ namespace StarEngine2025
             string relativePath = "../source/icons/AppIcons/AppIcon.ico";
             string combinedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
             string iconPath = Path.GetFullPath(combinedPath);
-            //Console.WriteLine($"Icon-Pfad: {iconPath}");
 
             try
             {
@@ -84,22 +84,52 @@ namespace StarEngine2025
 
         private void InitializeEditor()
         {
+            editorPanel = new Panel
+            {
+                Dock = DockStyle.Fill
+            };
+
             codeTextBox = new TextBox
             {
                 Multiline = true,
                 Dock = DockStyle.Fill,
-                ScrollBars = ScrollBars.Vertical
+                ScrollBars = ScrollBars.Both,
+                WordWrap = false,
+                Font = new Font("Consolas", 12),
+                Padding = new Padding(5)
             };
-            Controls.Add(codeTextBox);
+
+            editorPanel.Controls.Add(codeTextBox);
+            Controls.Add(editorPanel);
         }
+
 
         private void NewProject(object sender, EventArgs e)
         {
             string projectName = Prompt.ShowDialog("Projektname:", "Neues Projekt");
+
             if (!string.IsNullOrEmpty(projectName))
             {
-                ProjectLogic.CreateProject(projectName);
-                codeTextBox.Text = "Neues Projekt erstellt: " + projectName;
+                using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+                {
+                    folderBrowserDialog.Description = "Wählen Sie einen Speicherort für das Projekt";
+                    if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
+                    {
+                        string selectedPath = folderBrowserDialog.SelectedPath;
+                        
+                        string programFilePath = ProjectLogic.CreateProject(selectedPath, projectName);
+
+                        if (!string.IsNullOrEmpty(programFilePath) && File.Exists(programFilePath))
+                        {
+                            string programData = File.ReadAllText(programFilePath);
+                            codeTextBox.Text = programData;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Fehler beim Erstellen des Projekts oder Program.cs wurde nicht gefunden.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
             }
         }
 
@@ -107,7 +137,7 @@ namespace StarEngine2025
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Star Engine Project Files (*.sge)|*.sge|Alle Dateien (*.*)|*.*";
+                openFileDialog.Filter = "Star Engine Project Files (*.sge)|*.sge";
                 openFileDialog.Title = "Projekt öffnen";
 
                 if (openFileDialog.ShowDialog(this) == DialogResult.OK)
@@ -116,10 +146,18 @@ namespace StarEngine2025
                     if (projectData != null)
                     {
                         codeTextBox.Text = projectData;
+                        codeTextBox.SelectionStart = 0;
+                        codeTextBox.ScrollToCaret();
+
+                        codeTextBox.Focus();
+                        codeTextBox.SelectionLength = 0;
+                        codeTextBox.SelectionStart = 0;
+                        codeTextBox.ScrollToCaret();
                     }
                 }
             }
         }
+
     }
 
     public static class Prompt

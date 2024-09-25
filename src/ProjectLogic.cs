@@ -6,36 +6,51 @@ namespace StarEngine2025
 {
     public static class ProjectLogic
     {
-        private static readonly string projectsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "StarEngineProjects");
 
-        static ProjectLogic()
+        public static string CreateProject(string selectedPath, string projectName)
         {
-            if (!Directory.Exists(projectsDirectory))
-            {
-                Directory.CreateDirectory(projectsDirectory);
-            }
-        }
+            string projectDirectory = Path.Combine(selectedPath, projectName);
+            string projectFilePath = Path.Combine(projectDirectory, $"{projectName}.sge");
 
-        public static void CreateProject(string projectName)
-        {
-            string projectFilePath = Path.Combine(projectsDirectory, $"{projectName}.sge");
-
-            if (File.Exists(projectFilePath))
+            if (Directory.Exists(projectDirectory))
             {
                 MessageBox.Show("Ein Projekt mit diesem Namen existiert bereits.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return null;
             }
 
             try
             {
+                Directory.CreateDirectory(projectDirectory);
+                
                 File.WriteAllText(projectFilePath, "Neues Projekt: " + projectName);
+
+                string programFilePath = Path.Combine(projectDirectory, "Program.cs");
+                File.WriteAllText(programFilePath, @"
+using System;
+
+namespace " + projectName + @"
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(""Hello, StarEngine!"");
+        }
+    }
+}");
+
                 MessageBox.Show($"Projekt '{projectName}' wurde erstellt.", "Info", MessageBoxButtons.OK);
+
+                return programFilePath;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Fehler beim Erstellen des Projekts: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
         }
+
+
 
         public static string LoadProject(string projectPath)
         {
@@ -47,9 +62,21 @@ namespace StarEngine2025
                     return null;
                 }
 
+                string projectDirectory = Path.GetDirectoryName(projectPath);
                 string projectData = File.ReadAllText(projectPath);
-                MessageBox.Show($"Projekt '{projectPath}' wurde geladen.", "Info", MessageBoxButtons.OK);
-                return projectData;
+
+                string programFilePath = Path.Combine(projectDirectory, "Program.cs");
+                if (File.Exists(programFilePath))
+                {
+                    string programData = File.ReadAllText(programFilePath);
+                    MessageBox.Show($"Projekt '{projectPath}' wurden geladen.", "Info", MessageBoxButtons.OK);
+                    return programData;
+                }
+                else
+                {
+                    MessageBox.Show("Die Datei 'Program.cs' wurde nicht gefunden.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return projectData;
+                }
             }
             catch (Exception ex)
             {
