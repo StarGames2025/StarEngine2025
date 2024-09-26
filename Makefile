@@ -1,7 +1,8 @@
 PROJECT_NAME = StarEngine2025
 SRC_DIR = src
 BIN_DIR = bin
-OUTPUT = $(BIN_DIR)/$(PROJECT_NAME).exe
+OUTPUT_WINDOWS = $(BIN_DIR)/$(PROJECT_NAME).exe
+OUTPUT_LINUX = $(BIN_DIR)/$(PROJECT_NAME)
 
 VERSION_FILE = version.txt
 VERSION = $(shell cat $(VERSION_FILE) 2>/dev/null || echo "0.0.0")
@@ -15,13 +16,22 @@ SRC_FILES = $(SRC_DIR)/Program.cs \
             $(SRC_DIR)/ProjectTreeLogic.cs \
             $(SRC_DIR)/CodeExecutionLogic.cs
 
-all: increment-version compile run
+win: compile-windows run-windows
+unix: compile-linux run-linux
+dev: compile-windows run-windows increment-version
 
-compile:
-	mcs -out:$(OUTPUT) -r:System.Windows.Forms -r:System.Drawing $(SRC_FILES)
+compile-linux:
+	mcs -out:$(OUTPUT_LINUX) -r:System.Windows.Forms -r:System.Drawing $(SRC_FILES)
+	chmod +x $(OUTPUT_LINUX)
 
-run: 
-	mono $(OUTPUT)
+compile-windows:
+	mcs -out:$(OUTPUT_WINDOWS) -r:System.Windows.Forms -r:System.Drawing $(SRC_FILES)
+
+run-linux:
+	./$(OUTPUT_LINUX)
+
+run-windows:
+	mono $(OUTPUT_WINDOWS)
 
 increment-version:
 	@echo "Current version: $(VERSION)"
@@ -35,10 +45,9 @@ increment-version:
 	echo "New version: $$MAJOR.$$MINOR.$$PATCH"
 
 clean:
-	rm -f $(OUTPUT)
+	rm -f $(OUTPUT_WINDOWS) $(OUTPUT_LINUX)
 
-.PHONY: all compile run clean increment-version
-
+.PHONY: all compile-linux compile-windows run-linux run-windows clean increment-version
 
 # Patch: make increment-version
 # Minor: make level=MINOR increment-version

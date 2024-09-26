@@ -36,6 +36,7 @@ namespace StarEngine2025
                 MessageBox.Show("Fehler beim Laden des Icons: " + ex.Message);
             }
 
+            InitializeMenu();
             InitializeEditor();
             LoadSettings();
         }
@@ -91,7 +92,7 @@ namespace StarEngine2025
             editorPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(5, 26 , 5, 5)
+                Padding = new Padding(5, 24 , 5, 5)
             };
 
             codeTextBox = new TextBox

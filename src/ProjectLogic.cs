@@ -25,8 +25,7 @@ namespace StarEngine2025
                 File.WriteAllText(projectFilePath, "Neues Projekt: " + projectName);
 
                 string programFilePath = Path.Combine(projectDirectory, "Program.cs");
-                File.WriteAllText(programFilePath, @"
-using System;
+                File.WriteAllText(programFilePath, @"using System;
 
 namespace " + projectName + @"
 {
