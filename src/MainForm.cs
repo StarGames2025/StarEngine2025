@@ -57,6 +57,7 @@ namespace StarEngine2025
                     SettingsLogic.ApplyStyle(theme, codeTextBox);
 
                     var menuStrip = this.MainMenuStrip;
+                    
                     if (menuStrip != null)
                     {
                         menuStrip.BackColor = codeTextBox.BackColor;
