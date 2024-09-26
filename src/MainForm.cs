@@ -41,16 +41,27 @@ namespace StarEngine2025
             LoadSettings();
         }
 
+        private static string relativePathmaker(string relativePath)
+        {
+            string combinedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            return Path.GetFullPath(combinedPath);
+        }
+
         private void LoadSettings()
         {
-            if (File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StarEngineSettings.txt")))
-            {
-                string[] settings = File.ReadAllLines(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StarEngineSettings.txt"));
+                string[] settings = File.ReadAllLines(relativePathmaker("../UI/settings.json"));
                 if (settings.Length > 0)
                 {
                     string theme = settings[0];
                     SettingsLogic.ApplyStyle(theme, this);
                     SettingsLogic.ApplyStyle(theme, codeTextBox);
+
+                    var menuStrip = this.MainMenuStrip;
+                    if (menuStrip != null)
+                    {
+                        menuStrip.BackColor = codeTextBox.BackColor;
+                        menuStrip.ForeColor = codeTextBox.ForeColor;
+                    }
 
                     if (settings.Length > 1)
                     {
@@ -68,7 +79,6 @@ namespace StarEngine2025
                         }
                     }
                 }
-            }
         }
 
         private void InitializeMenu()

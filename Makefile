@@ -16,6 +16,8 @@ SRC_FILES = $(SRC_DIR)/Program.cs \
             $(SRC_DIR)/ProjectTreeLogic.cs \
             $(SRC_DIR)/CodeExecutionLogic.cs
 
+all: compile-windows compile-linux
+
 win: compile-windows run-windows
 unix: compile-linux run-linux
 dev: compile-windows run-windows increment-version

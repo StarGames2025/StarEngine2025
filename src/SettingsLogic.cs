@@ -1,16 +1,17 @@
 using System;
 using System.IO;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace StarEngine2025
 {
     public static class SettingsLogic
     {
-        // Pfad für die Einstellungen
-        private static readonly string settingsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI", "settings.json");
-        private static readonly string stylesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI", "Styles");
-        private static readonly string fontsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "source", "Fonts");
+        private static readonly string settingsFilePath = relativePathmaker("../UI/settings.json");
+        private static readonly string stylesDirectory = relativePathmaker("../UI/Styles");
+        private static readonly string fontsDirectory = relativePathmaker("../source/Fonts");
 
         public static void OpenSettings(IWin32Window owner)
         {
@@ -62,18 +63,38 @@ namespace StarEngine2025
         {
             if (File.Exists(settingsFilePath))
             {
-                var settings = File.ReadAllLines(settingsFilePath);
-                if (settings.Length > 0)
+                var jsonData = File.ReadAllText(settingsFilePath);
+                
+                try
                 {
-                    comboBoxTheme.SelectedItem = settings[0];
-                    if (settings.Length > 1)
+                    jsonData = jsonData.Replace("{", "").Replace("}", "").Replace("\"", "");
+                    var settings = jsonData.Split(',');
+
+                    var settingsDict = new Dictionary<string, string>();
+
+                    foreach (var setting in settings)
                     {
-                        comboBoxFont.SelectedItem = settings[1];
+                        var keyValue = setting.Split(':');
+                        if (keyValue.Length == 2)
+                        {
+                            string key = keyValue[0].Trim();
+                            string value = keyValue[1].Trim();
+                            settingsDict[key] = value;
+                        }
+                    }
+
+                    if (settingsDict.TryGetValue("theme", out var theme))
+                    {
+                        comboBoxTheme.SelectedItem = theme;
+                    }
+                    if (settingsDict.TryGetValue("fontFamily", out var fontFamily))
+                    {
+                        comboBoxFont.SelectedItem = fontFamily;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Einstellungen sind leer.", "Warnung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Fehler beim Laden der Einstellungen: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
@@ -82,26 +103,25 @@ namespace StarEngine2025
             }
         }
 
-        private static void LoadFonts(ComboBox comboBox)
-        {
-            if (Directory.Exists(fontsDirectory))
-            {
-                foreach (var fontFile in Directory.GetFiles(fontsDirectory, "*.ttf"))
-                {
-                    comboBox.Items.Add(Path.GetFileNameWithoutExtension(fontFile));
-                }
-            }
-        }
 
         private static void SaveSettings(string theme, string fontFamily)
         {
-            // Speichern der Einstellungen im einfachen Textformat
-            var settings = new string[]
+            var settings = new List<string>
             {
-                theme,
-                fontFamily
+                "{",
+                $"  \"theme\": \"{theme}\",",
+                $"  \"fontFamily\": \"{fontFamily}\"",
+                "}"
             };
-            File.WriteAllLines(settingsFilePath, settings);
+
+            try
+            {
+                File.WriteAllLines(settingsFilePath, settings);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fehler beim Speichern der Einstellungen: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public static void ApplyStyle(string theme, Control control)
@@ -121,42 +141,101 @@ namespace StarEngine2025
                     control.BackColor = backgroundColor;
                     control.ForeColor = textColor;
                     control.Font = font;
+
+                    if (control is TextBox textBox)
+                    {
+                        textBox.BackColor = backgroundColor;
+                        textBox.ForeColor = textColor;
+                    }
                 }
             }
         }
 
+
         private static ThemeSettings ParseThemeSettings(string jsonData)
         {
-            // Manuelle Analyse der JSON-Daten
-            string[] parts = jsonData.Replace("{", "").Replace("}", "").Replace("\"", "").Split(',');
             var themeSettings = new ThemeSettings();
-            foreach (var part in parts)
+            var lines = jsonData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
             {
-                var keyValue = part.Split(':');
-                if (keyValue.Length == 2)
+                if (line.Contains("BackgroundColor"))
                 {
-                    switch (keyValue[0])
-                    {
-                        case "BackgroundColor":
-                            themeSettings.BackgroundColor = Array.ConvertAll(keyValue[1].Split('|'), int.Parse);
-                            break;
-                        case "TextColor":
-                            themeSettings.TextColor = Array.ConvertAll(keyValue[1].Split('|'), int.Parse);
-                            break;
-                        case "FontFamily":
-                            themeSettings.FontFamily = keyValue[1];
-                            break;
-                        case "FontSize":
-                            themeSettings.FontSize = float.Parse(keyValue[1]);
-                            break;
-                        case "FontStyle":
-                            themeSettings.FontStyle = keyValue[1];
-                            break;
-                    }
+                    themeSettings.BackgroundColor = ParseColor(line);
+                }
+                else if (line.Contains("TextColor"))
+                {
+                    themeSettings.TextColor = ParseColor(line);
+                }
+                else if (line.Contains("FontFamily"))
+                {
+                    themeSettings.FontFamily = ExtractValue(line);
+                }
+                else if (line.Contains("FontSize"))
+                {
+                    themeSettings.FontSize = float.Parse(ExtractValue(line));
+                }
+                else if (line.Contains("FontStyle"))
+                {
+                    themeSettings.FontStyle = ExtractValue(line);
                 }
             }
             return themeSettings;
         }
+
+        private static int[] ParseColor(string line)
+        {
+            string[] parts = ExtractValue(line).Split('|');
+            return Array.ConvertAll(parts, int.Parse);
+        }
+
+        private static string ExtractValue(string line)
+        {
+            return line.Split(':')[1].Trim().Trim('"');
+        }
+
+        private static string relativePathmaker(string relativePath)
+        {
+            string combinedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            return Path.GetFullPath(combinedPath);
+        }
+
+        private static void LoadFonts(ComboBox comboBoxFont)
+        {
+            using (InstalledFontCollection col = new InstalledFontCollection())
+            {
+                foreach (FontFamily fa in col.Families)
+                {
+                    comboBoxFont.Items.Add(fa.Name);
+                }
+            }
+
+            if (Directory.Exists(fontsDirectory))
+            {
+                string[] fontFiles = Directory.GetFiles(fontsDirectory, "*.ttf");
+
+                foreach (var fontFile in fontFiles)
+                {
+                    try
+                    {
+                        using (PrivateFontCollection pfc = new PrivateFontCollection())
+                        {
+                            pfc.AddFontFile(fontFile);
+                            FontFamily fontFamily = pfc.Families[0];
+                            comboBoxFont.Items.Add(fontFamily.Name);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Fehler beim Laden der Schriftart '{fontFile}': {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Das Schriftartenverzeichnis existiert nicht.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 
     public class ThemeSettings
