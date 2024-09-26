@@ -36,18 +36,6 @@ namespace StarEngine2025
                 MessageBox.Show("Fehler beim Laden des Icons: " + ex.Message);
             }
 
-
-
-            var menuStrip = new MenuStrip();
-            var fileMenu = new ToolStripMenuItem("Datei");
-            fileMenu.DropDownItems.Add("Neues Projekt", null, NewProject);
-            fileMenu.DropDownItems.Add("Projekt öffnen", null, OpenProject);
-            fileMenu.DropDownItems.Add("Einstellungen", null, (s, e) => SettingsLogic.OpenSettings(this));
-            fileMenu.DropDownItems.Add("Beenden", null, (s, e) => Application.Exit());
-            menuStrip.Items.Add(fileMenu);
-            MainMenuStrip = menuStrip;
-            Controls.Add(menuStrip);
-
             InitializeEditor();
             LoadSettings();
         }
@@ -82,11 +70,28 @@ namespace StarEngine2025
             }
         }
 
+        private void InitializeMenu()
+        {
+            var menuStrip = new MenuStrip();
+            var fileMenu = new ToolStripMenuItem("Datei");
+
+            fileMenu.DropDownItems.Add("Neues Projekt", null, NewProject);
+            fileMenu.DropDownItems.Add("Projekt öffnen", null, OpenProject);
+            fileMenu.DropDownItems.Add("Einstellungen", null, (s, e) => SettingsLogic.OpenSettings(this));
+            fileMenu.DropDownItems.Add("Beenden", null, (s, e) => Application.Exit());
+
+            menuStrip.Items.Add(fileMenu);
+            
+            MainMenuStrip = menuStrip;
+            Controls.Add(menuStrip);
+        }
+
         private void InitializeEditor()
         {
             editorPanel = new Panel
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                Padding = new Padding(5, 26 , 5, 5)
             };
 
             codeTextBox = new TextBox
@@ -96,7 +101,6 @@ namespace StarEngine2025
                 ScrollBars = ScrollBars.Both,
                 WordWrap = false,
                 Font = new Font("Consolas", 12),
-                Padding = new Padding(5)
             };
 
             editorPanel.Controls.Add(codeTextBox);
