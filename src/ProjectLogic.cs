@@ -49,8 +49,6 @@ namespace " + projectName + @"
             }
         }
 
-
-
         public static string LoadProject(string projectPath)
         {
             try

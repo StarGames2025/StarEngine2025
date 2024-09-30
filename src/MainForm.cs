@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace StarEngine2025
 {
@@ -49,13 +50,21 @@ namespace StarEngine2025
 
         private void LoadSettings()
         {
-                string[] settings = File.ReadAllLines(relativePathmaker("../UI/settings.json"));
+                string[] settingsjson = File.ReadAllLines(relativePathmaker("../UI/settings.json"));
+                
+                settingsjson = settingsjson.Skip(1).Take(settingsjson.Length - 2).ToArray();
+
+                Dictionary<string, string> settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(settingsjson);
+
                 if (settings.Length > 0)
                 {
-                    string theme = settings[0];
+                    string theme = settings[1];
+                    
+                    Console.WriteLine(theme);
+                                        
                     SettingsLogic.ApplyStyle(theme, this);
                     SettingsLogic.ApplyStyle(theme, codeTextBox);
-
+                    
                     var menuStrip = this.MainMenuStrip;
                     
                     if (menuStrip != null)
@@ -118,7 +127,6 @@ namespace StarEngine2025
             editorPanel.Controls.Add(codeTextBox);
             Controls.Add(editorPanel);
         }
-
 
         private void NewProject(object sender, EventArgs e)
         {

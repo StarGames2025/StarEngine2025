@@ -149,6 +149,10 @@ namespace StarEngine2025
                     }
                 }
             }
+            else
+            {
+                MessageBox.Show($"Path '{styleFilePath}' not found.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
