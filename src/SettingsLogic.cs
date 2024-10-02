@@ -7,39 +7,28 @@ using System.Collections.Generic;
 
 namespace StarEngine2025
 {
-    public class Theme
-    {
-        public int[]? BackgroundColor { get; set; }
-        public int[]? TextColor { get; set; }
-        public string? FontFamily { get; set; }
-        public float? FontSize { get; set; }
-        public string? FontStyle { get; set; }
-        public int[]? BorderColor { get; set; }
-    }
-    
-    Theme selectedTheme = new Theme();
-
     public static class SettingsLogic
     {
-        private static readonly string settingsFilePath = pathHelper.RelativePathMaker("../UI/settings.json");
-        private static readonly string stylesDirectory = pathHelper.RelativePathMaker("../UI/Styles");
-        private static readonly string fontsDirectory = pathHelper.RelativePathMaker("../source/Fonts");
+        private static readonly string settingsFilePath = PathHelper.RelativePathMaker("../UI/settings.json");
+        private static readonly string themeDirectory = PathHelper.RelativePathMaker("../UI/Themes");
+        private static readonly string fontsDirectory = PathHelper.RelativePathMaker("../source/Fonts");
 
-        public static void ApplyStyle(string theme, Control control)
+        public static void ApplyStyle(Settings settingsConfig)
         {
-            ThemeLoader();
+            string themeName = settingsConfig.ThemeName;
+            ThemeLoader(PathHelper.RelativePathMaker(themeDirectory + "/" + themeName + ".json"));
 
-            if (control == MainForm.settingsConfig)
+            switch (themeName)
             {
-                switch (theme) { }
+                    //pass
             }
         }
         
-         public static Theme ThemeLoader(string themeFilePath)
+        private static void ThemeLoader(string themeFilePath)
         {
-            var json = File.ReadAllText(themeFilePath);
-            var theme = JsonConvert.DeserializeObject<Theme>(json);
-            return theme;
+            //var json = File.ReadAllText(themeFilePath);
+            //var theme = JsonConvert.DeserializeObject<Theme>(json);
+            //return theme;
         }
 
         private static void SaveSettings(string theme, string fontFamily)
@@ -61,7 +50,7 @@ namespace StarEngine2025
                 MessageBox.Show($"Fehler beim Speichern der Einstellungen: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            MainForm.settingsloader();
+            ApplyStyle(MainForm.config);
         }
 
         public static void OpenSettings(MainForm mainForm, IWin32Window owner)
@@ -79,7 +68,7 @@ namespace StarEngine2025
 
                 Label labelFont = new Label { Text = "Schriftart:", Left = 10, Top = 60 };
                 ComboBox comboBoxFont = new ComboBox { Left = 120, Top = 60, Width = 150 };
-                LoadFonts(comboBoxFont);
+                LoadFonts();
 
                 Button saveButton = new Button { Text = "Speichern", Left = 110, Top = 100 };
                 saveButton.Click += (s, ev) =>
@@ -89,7 +78,7 @@ namespace StarEngine2025
                         string theme = comboBoxTheme.SelectedItem.ToString();
                         string fontFamily = comboBoxFont.SelectedItem.ToString();
                         SaveSettings(theme, fontFamily);
-                        StarEngine2025.MainForm.settingsloader();
+                        ApplyStyle(MainForm.config);
                         MessageBox.Show("Einstellungen gespeichert.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         settingsForm.Close();
                     }
@@ -100,14 +89,14 @@ namespace StarEngine2025
                 };
 
                 Button applyButton = new Button { Text = "Apply", Left = 130, Top = 100 };
-                applyButton.Click += (s, ev) =>
+                applyButton.Click += (s, ev) => 
                 {
                     if (comboBoxTheme.SelectedItem != null && comboBoxFont.SelectedItem != null)
                     {
                         string theme = comboBoxTheme.SelectedItem.ToString();
                         string fontFamily = comboBoxFont.SelectedItem.ToString();
                         SaveSettings(theme, fontFamily);
-                        StarEngine2025.MainForm.settingsloader();
+                        ApplyStyle(MainForm.config);
                         MessageBox.Show("Einstellungen Angewandt.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
@@ -126,6 +115,8 @@ namespace StarEngine2025
                 settingsForm.ShowDialog(owner);
             }
         }
+
+        private static void LoadFonts(){}
 
         private static void LoadSettings(ComboBox comboBoxTheme, ComboBox comboBoxFont)
         {

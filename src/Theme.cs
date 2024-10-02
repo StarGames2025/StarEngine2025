@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Drawing;
 
-namespace Theme
+namespace StarEngine2025
 {
-    public class Theme
+    public class Settings
     {
-        public string Name { get; set; }
+        public string ThemeName { get; set; }
         public BackgroundSettings Background { get; set; }
         public EditorSettings Editor { get; set; }
         public ColorSettings Colors { get; set; }
@@ -20,7 +20,7 @@ namespace Theme
         public ScrollbarSettings Scrollbar { get; set; }
         public NotificationSettings Notifications { get; set; }
 
-        public Theme()
+        public Settings()
         {
             Background = new BackgroundSettings();
             Editor = new EditorSettings();
@@ -33,6 +33,7 @@ namespace Theme
             Tabs = new TabSettings();
             Scrollbar = new ScrollbarSettings();
             Notifications = new NotificationSettings();
+            Console.WriteLine("Settings initialisiert!");
         }
     }
 

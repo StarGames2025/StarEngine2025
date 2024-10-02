@@ -7,8 +7,10 @@ OUTPUT_LINUX = $(BIN_DIR)/$(PROJECT_NAME)
 VERSION_FILE = version.txt
 VERSION = $(shell cat $(VERSION_FILE) 2>/dev/null || echo "0.0.0")
 
-SRC_FILES = $(SRC_DIR)/Program.cs \
+SRC_FILES = $(SRC_DIR)/Theme.cs\
+			$(SRC_DIR)/Program.cs \
             $(SRC_DIR)/MainForm.cs \
+			$(SRC_DIR)/Functions.cs \
             $(SRC_DIR)/EditorLogic.cs \
             $(SRC_DIR)/ProjectLogic.cs \
             $(SRC_DIR)/TemplateLogic.cs \

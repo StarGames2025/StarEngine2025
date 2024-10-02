@@ -7,25 +7,9 @@ using System.Collections.Generic;
 
 namespace StarEngine2025
 {
-    public class Settings
-    {
-        public int[] backgroundColor { get; set; }
-        public int[] textColor { get; set; }
-        public int[] borderColor { get; set; }
-        public int fontSize { get; set; }
-        public string fontStyle { get; set; }
-    }
-
     public class MainForm : Form
     {
-        public static settings Default => new settings
-        {
-            backgroundColor = new int[] { 255, 255, 255 }, 
-            textColor = new int[] { 0, 0, 0 },
-            borderColor = new int[] { 245, 245, 220 },
-            fontSize = 12,
-            fontStyle = "Regular"
-       };
+        public static Settings config;
         private TextBox codeTextBox;
         private Panel editorPanel;
         private MenuStrip menuStrip;
@@ -63,56 +47,7 @@ namespace StarEngine2025
 
         private void LoadSettings()
         {
-            string settingsPath = pathHelper.RelativePathMaker("../UI/settings.json");
-
-            if (!File.Exists(settingsPath))
-            {
-                MessageBox.Show("Einstellungsdatei nicht gefunden: " + settingsPath);
-                return;
-            }
-
-            string jsonBody = File.ReadAllText(settingsPath);
-            var settings = ParseJsonToDictionary(jsonBody);
-            
-
-            if (settings != null && settings.Count > 0)
-            {
-                if (settings.TryGetValue("theme", out string theme))
-                {
-                    try
-                    {
-                        SettingsLogic.ApplyStyle(theme, settingsConfig);
-
-                        var codeTextBox = this.codeTextBox;
-                        if (codeTextBox != null)
-                        {
-                            codetextBox.BackColor = settingsConfig.backColor;
-                            codeTextBox.ForeColor = settingsConfig.foreColor;
-                        }
-
-                        var menuStrip = this.menuStrip;
-                        if (menuStrip != null)
-                        {
-                            menuStrip.BackColor = settingsConfig.backColor;
-                            menuStrip.ForeColor = settingsConfig.foreColor;
-                        }
-                        
-                        var editorPanel = this.editorPanel;
-                        if (editorPanel != null)
-                        {
-                            editorPanel.BackColor = settingsConfig.borderColor;
-                            editorPanel.ForeColor = settingsConfig.foreColor;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"theme: {theme}");
-                        Console.WriteLine($"jsonBody: {jsonBody}");
-                        Console.WriteLine($"settings: {settings}");
-                        MessageBox.Show("Fehler beim Anwenden des Themes: " + e.Message, "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }          
-            }
+            SettingsLogic.ApplyStyle(config);
         }
 
         private void InitializeMenu()
