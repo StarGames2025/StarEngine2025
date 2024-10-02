@@ -68,7 +68,7 @@ namespace StarEngine2025
 
                 Label labelFont = new Label { Text = "Schriftart:", Left = 10, Top = 60 };
                 ComboBox comboBoxFont = new ComboBox { Left = 120, Top = 60, Width = 150 };
-                LoadFonts();
+                LoadFonts(comboBoxFont);
 
                 Button saveButton = new Button { Text = "Speichern", Left = 110, Top = 100 };
                 saveButton.Click += (s, ev) =>
@@ -116,7 +116,17 @@ namespace StarEngine2025
             }
         }
 
-        private static void LoadFonts(){}
+        private static void LoadFonts(ComboBox comboBoxFont)
+        {
+            string[] fonts =  Directory.GetFiles(fontsDirectory);
+            if (fonts != null)
+            {
+                foreach (var font in fonts)
+                {
+                    comboBoxFont.Items.Add(font);
+                }
+            }
+        }
 
         private static void LoadSettings(ComboBox comboBoxTheme, ComboBox comboBoxFont)
         {
