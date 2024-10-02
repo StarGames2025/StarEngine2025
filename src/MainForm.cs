@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace StarEngine2025
 {
@@ -10,6 +11,7 @@ namespace StarEngine2025
     {
         private TextBox codeTextBox;
         private Panel editorPanel;
+        private MenuStrip menuStrip;
 
         public MainForm()
         {
@@ -48,63 +50,109 @@ namespace StarEngine2025
             return Path.GetFullPath(combinedPath);
         }
 
+        public static void settingsloader()
+        {
+            MainForm formInstance = new MainForm();
+            formInstance.LoadSettings();
+        }
+
         private void LoadSettings()
         {
-                string[] settingsjson = File.ReadAllLines(relativePathmaker("../UI/settings.json"));
-                
-                settingsjson = settingsjson.Skip(1).Take(settingsjson.Length - 2).ToArray();
+            string settingsPath = relativePathmaker("../UI/settings.json");
 
-                Dictionary<string, string> settings = JsonConvert.DeserializeObject<Dictionary<string, string>>(settingsjson);
+            if (!File.Exists(settingsPath))
+            {
+                MessageBox.Show("Einstellungsdatei nicht gefunden: " + settingsPath);
+                return;
+            }
 
-                if (settings.Length > 0)
+            string jsonBody = File.ReadAllText(settingsPath);
+            var settings = ParseJsonToDictionary(jsonBody);
+            
+
+            if (settings != null && settings.Count > 0)
+            {
+                if (settings.TryGetValue("theme", out string theme))
                 {
-                    string theme = settings[1];
-                    
-                    Console.WriteLine(theme);
-                                        
-                    SettingsLogic.ApplyStyle(theme, this);
-                    SettingsLogic.ApplyStyle(theme, codeTextBox);
-                    
-                    var menuStrip = this.MainMenuStrip;
-                    
-                    if (menuStrip != null)
+                    try
                     {
-                        menuStrip.BackColor = codeTextBox.BackColor;
-                        menuStrip.ForeColor = codeTextBox.ForeColor;
-                    }
+                        var editorPanel = this.editorPanel;
+                        var menuStrip = this.menuStrip;
 
-                    if (settings.Length > 1)
-                    {
-                        string fontFamily = settings[1];
-                        try
+                        SettingsLogic.ApplyStyle(theme, this);
+                        SettingsLogic.ApplyStyle(theme, codeTextBox);
+                        SettingsLogic.ApplyStyle(theme, editorPanel);
+
+                        if (menuStrip != null)
                         {
-                            var font = new Font(fontFamily, 12);
-                            this.Font = font;
-                            codeTextBox.Font = font;
+                            menuStrip.BackColor = codeTextBox.BackColor;
+                            menuStrip.ForeColor = codeTextBox.ForeColor;
                         }
-                        catch (Exception)
+                        
+                        if (editorPanel != null)
                         {
-                            this.Font = SystemFonts.DefaultFont;
-                            codeTextBox.Font = SystemFonts.DefaultFont;
+                            editorPanel.BackColor = editorPanel.BackColor;
+                            editorPanel.ForeColor = editorPanel.ForeColor;
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"theme: {theme}");
+                        Console.WriteLine($"jsonBody: {jsonBody}");
+                        Console.WriteLine($"settings: {settings}");
+                        MessageBox.Show("Fehler beim Anwenden des Themes: " + e.Message, "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }          
+            }
+        }
+
+        private Dictionary<string, string> ParseJsonToDictionary(string json)
+        {
+            var result = new Dictionary<string, string>();
+            json = json.Trim().Trim('{', '}');
+
+            if (string.IsNullOrEmpty(json))
+            {
+                MessageBox.Show("JSON is empty or incorrectly formatted.");
+                return result;
+            }
+
+            var pairs = json.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            foreach (var pair in pairs)
+            {
+                var keyValue = pair.Split(new[] { ':' }, 2);
+                if (keyValue.Length == 2)
+                {
+                    var key = keyValue[0].Trim().Trim('"');
+                    var value = keyValue[1].Trim().Trim('"');
+                    result[key] = value;
                 }
+                else
+                {
+                    MessageBox.Show($"Invalid pair format: {pair}");
+                }
+            }
+            return result;
         }
 
         private void InitializeMenu()
         {
-            var menuStrip = new MenuStrip();
+            menuStrip = new MenuStrip();
             var fileMenu = new ToolStripMenuItem("Datei");
 
             fileMenu.DropDownItems.Add("Neues Projekt", null, NewProject);
             fileMenu.DropDownItems.Add("Projekt öffnen", null, OpenProject);
-            fileMenu.DropDownItems.Add("Einstellungen", null, (s, e) => SettingsLogic.OpenSettings(this));
+            fileMenu.DropDownItems.Add("Einstellungen", null, (s, e) => SettingsLogic.OpenSettings(this, this));
             fileMenu.DropDownItems.Add("Beenden", null, (s, e) => Application.Exit());
 
             menuStrip.Items.Add(fileMenu);
-            
-            MainMenuStrip = menuStrip;
+
+            menuStrip.ForeColor = Color.FromArgb(0,0,0);
+
             Controls.Add(menuStrip);
+
+            MainMenuStrip = menuStrip;
         }
 
         private void InitializeEditor()
@@ -112,19 +160,20 @@ namespace StarEngine2025
             editorPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(5, 24 , 5, 5)
+                Padding = new Padding(5, 25 , 5, 5),
+                BackColor = Color.FromArgb(245, 245, 220)
             };
 
             codeTextBox = new TextBox
             {
                 Multiline = true,
                 Dock = DockStyle.Fill,
-                ScrollBars = ScrollBars.Both,
                 WordWrap = false,
-                Font = new Font("Consolas", 12),
+                Font = new Font("Consolas", 12)
             };
 
             editorPanel.Controls.Add(codeTextBox);
+            
             Controls.Add(editorPanel);
         }
 
@@ -181,7 +230,6 @@ namespace StarEngine2025
                 }
             }
         }
-
     }
 
     public static class Prompt

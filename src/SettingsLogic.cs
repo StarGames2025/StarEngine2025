@@ -7,13 +7,23 @@ using System.Collections.Generic;
 
 namespace StarEngine2025
 {
+    public class ThemeSettings
+    {
+        public int[] BackgroundColor { get; set; }
+        public int[] TextColor { get; set; }
+        public string FontFamily { get; set; }
+        public float FontSize { get; set; }
+        public string FontStyle { get; set; }
+        public int[] BorderColor { get; set; }
+    }
+
     public static class SettingsLogic
     {
         private static readonly string settingsFilePath = relativePathmaker("../UI/settings.json");
         private static readonly string stylesDirectory = relativePathmaker("../UI/Styles");
         private static readonly string fontsDirectory = relativePathmaker("../source/Fonts");
 
-        public static void OpenSettings(IWin32Window owner)
+        public static void OpenSettings(MainForm mainForm, IWin32Window owner)
         {
             using (var settingsForm = new Form())
             {
@@ -30,7 +40,7 @@ namespace StarEngine2025
                 ComboBox comboBoxFont = new ComboBox { Left = 120, Top = 60, Width = 150 };
                 LoadFonts(comboBoxFont);
 
-                Button saveButton = new Button { Text = "Speichern", Left = 120, Top = 100 };
+                Button saveButton = new Button { Text = "Speichern", Left = 110, Top = 100 };
                 saveButton.Click += (s, ev) =>
                 {
                     if (comboBoxTheme.SelectedItem != null && comboBoxFont.SelectedItem != null)
@@ -38,8 +48,26 @@ namespace StarEngine2025
                         string theme = comboBoxTheme.SelectedItem.ToString();
                         string fontFamily = comboBoxFont.SelectedItem.ToString();
                         SaveSettings(theme, fontFamily);
+                        StarEngine2025.MainForm.settingsloader();
                         MessageBox.Show("Einstellungen gespeichert.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         settingsForm.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Bitte wähle ein Farbschema und eine Schriftart aus.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                };
+
+                Button applyButton = new Button { Text = "Apply", Left = 130, Top = 100 };
+                applyButton.Click += (s, ev) =>
+                {
+                    if (comboBoxTheme.SelectedItem != null && comboBoxFont.SelectedItem != null)
+                    {
+                        string theme = comboBoxTheme.SelectedItem.ToString();
+                        string fontFamily = comboBoxFont.SelectedItem.ToString();
+                        SaveSettings(theme, fontFamily);
+                        StarEngine2025.MainForm.settingsloader();
+                        MessageBox.Show("Einstellungen Angewandt.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
@@ -52,8 +80,7 @@ namespace StarEngine2025
                 settingsForm.Controls.Add(labelFont);
                 settingsForm.Controls.Add(comboBoxFont);
                 settingsForm.Controls.Add(saveButton);
-
-                LoadSettings(comboBoxTheme, comboBoxFont);
+                settingsForm.Controls.Add(applyButton);
 
                 settingsForm.ShowDialog(owner);
             }
@@ -103,7 +130,6 @@ namespace StarEngine2025
             }
         }
 
-
         private static void SaveSettings(string theme, string fontFamily)
         {
             var settings = new List<string>
@@ -122,44 +148,72 @@ namespace StarEngine2025
             {
                 MessageBox.Show($"Fehler beim Speichern der Einstellungen: {ex.Message}", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            StarEngine2025.MainForm.settingsloader();
         }
 
         public static void ApplyStyle(string theme, Control control)
         {
-            string styleFilePath = Path.Combine(stylesDirectory, $"{theme}Mode.json");
-            if (File.Exists(styleFilePath))
+            try
             {
-                var jsonData = File.ReadAllText(styleFilePath);
-                var themeSettings = ParseThemeSettings(jsonData);
-
-                if (themeSettings != null)
+                string styleFilePath = Path.Combine(stylesDirectory, $"{theme}Mode.json");
+                if (File.Exists(styleFilePath))
                 {
-                    Color backgroundColor = Color.FromArgb(themeSettings.BackgroundColor[0], themeSettings.BackgroundColor[1], themeSettings.BackgroundColor[2]);
-                    Color textColor = Color.FromArgb(themeSettings.TextColor[0], themeSettings.TextColor[1], themeSettings.TextColor[2]);
-                    Font font = new Font(themeSettings.FontFamily, themeSettings.FontSize, (FontStyle)Enum.Parse(typeof(FontStyle), themeSettings.FontStyle));
-
-                    control.BackColor = backgroundColor;
-                    control.ForeColor = textColor;
-                    control.Font = font;
-
-                    if (control is TextBox textBox)
+                    var jsonData = File.ReadAllText(styleFilePath);
+                    var themeSettings = ParseThemeSettings(jsonData);
+                    if (themeSettings != null)
                     {
-                        textBox.BackColor = backgroundColor;
-                        textBox.ForeColor = textColor;
+                        Color backgroundColor = Color.FromArgb(themeSettings.BackgroundColor[0], themeSettings.BackgroundColor[1], themeSettings.BackgroundColor[2]);
+                        Color textColor = Color.FromArgb(themeSettings.TextColor[0], themeSettings.TextColor[1], themeSettings.TextColor[2]);
+                        Color borderColor = Color.FromArgb(themeSettings.BorderColor[0], themeSettings.BorderColor[1], themeSettings.BorderColor[2]);
+                        Font font;
+
+                        if (Enum.TryParse(typeof(FontStyle), themeSettings.FontStyle, true, out var fontStyle))
+                        {
+                            font = new Font(themeSettings.FontFamily, themeSettings.FontSize, (FontStyle)fontStyle);
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Invalid FontStyle '{themeSettings.FontStyle}'. Using default FontStyle.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            font = new Font(themeSettings.FontFamily, themeSettings.FontSize, FontStyle.Regular);
+                        }
+
+                        control.BackColor = backgroundColor;
+                        control.ForeColor = textColor;
+                        control.BackColor = borderColor;
+                        control.Font = font;
+
+                        if (control is TextBox textBox)
+                        {
+                            textBox.BackColor = backgroundColor;
+                            textBox.ForeColor = textColor;
+                        }
+
+                        if (control is Panel panel)
+                        {
+                            panel.BackColor = borderColor;
+                        }
                     }
                 }
+                else
+                {
+                    MessageBox.Show($"Path '{styleFilePath}' not found.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
+            catch (Exception e)
             {
-                MessageBox.Show($"Path '{styleFilePath}' not found.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(e);
+                MessageBox.Show("An error occurred while applying the style.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
 
         private static ThemeSettings ParseThemeSettings(string jsonData)
         {
             var themeSettings = new ThemeSettings();
             var lines = jsonData.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            
             foreach (var line in lines)
             {
                 if (line.Contains("BackgroundColor"))
@@ -176,11 +230,22 @@ namespace StarEngine2025
                 }
                 else if (line.Contains("FontSize"))
                 {
-                    themeSettings.FontSize = float.Parse(ExtractValue(line));
+                    if (float.TryParse(ExtractValue(line), out float fontSize))
+                    {
+                        themeSettings.FontSize = fontSize;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid FontSize format: {line}");
+                    }
                 }
                 else if (line.Contains("FontStyle"))
                 {
                     themeSettings.FontStyle = ExtractValue(line);
+                }
+                else if (line.Contains("BorderColor"))
+                {
+                    themeSettings.BorderColor = ParseColor(line);
                 }
             }
             return themeSettings;
@@ -188,13 +253,56 @@ namespace StarEngine2025
 
         private static int[] ParseColor(string line)
         {
-            string[] parts = ExtractValue(line).Split('|');
-            return Array.ConvertAll(parts, int.Parse);
+            try
+            {
+                string colorString = ExtractValue(line).Trim();
+
+                if (colorString.EndsWith(","))
+                {
+                    colorString = colorString.TrimEnd(',');
+                }
+
+                colorString = colorString.Trim('[', ']');
+
+                string[] parts = colorString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length != 3)
+                {
+                    throw new FormatException("Expected format: [R,G,B]");
+                }
+
+                return Array.ConvertAll(parts, part =>
+                {
+                    if (int.TryParse(part.Trim(), out int colorComponent))
+                    {
+                        if (colorComponent < 0 || colorComponent > 255)
+                        {
+                            throw new ArgumentOutOfRangeException($"Color component {colorComponent} is out of range (0-255).");
+                        }
+                        return colorComponent;
+                    }
+                    else
+                    {
+                        throw new FormatException($"Invalid color component: '{part}'");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing color from line '{line}': {ex.Message}");
+                throw;
+            }
         }
 
         private static string ExtractValue(string line)
         {
-            return line.Split(':')[1].Trim().Trim('"');
+            var parts = line.Split(':');
+            if (parts.Length < 2)
+            {
+                throw new FormatException("Line does not contain a valid key-value pair.");
+            }
+            
+            return parts[1].Trim().Trim('"');
         }
 
         private static string relativePathmaker(string relativePath)
@@ -240,14 +348,5 @@ namespace StarEngine2025
             }
         }
 
-    }
-
-    public class ThemeSettings
-    {
-        public int[] BackgroundColor { get; set; }
-        public int[] TextColor { get; set; }
-        public string FontFamily { get; set; }
-        public float FontSize { get; set; }
-        public string FontStyle { get; set; }
     }
 }
