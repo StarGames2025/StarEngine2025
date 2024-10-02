@@ -7,8 +7,16 @@ using System.Collections.Generic;
 
 namespace StarEngine2025
 {
+    public class Settings
+    {
+        public Color backgroundColor;
+        public Color ForeColor;
+        public Color borderColor;
+    }
+
     public class MainForm : Form
     {
+        List<Settings> settingsConfig = new List<Settings>();
         private TextBox codeTextBox;
         private Panel editorPanel;
         private MenuStrip menuStrip;
@@ -76,23 +84,28 @@ namespace StarEngine2025
                 {
                     try
                     {
-                        var editorPanel = this.editorPanel;
-                        var menuStrip = this.menuStrip;
-
                         SettingsLogic.ApplyStyle(theme, this);
-                        SettingsLogic.ApplyStyle(theme, codeTextBox);
-                        SettingsLogic.ApplyStyle(theme, editorPanel);
+                        SettingsLogic.ApplyStyle(theme, settingsConfig);
 
+                        var codeTextBox = this.codeTextBox;
+                        if (codeTextBox != null)
+                        {
+                            codetextBox.BackColor = settingsConfig.BackColor;
+                            codeTextBox.ForeColor = settingsConfig.ForeColor;
+                        }
+
+                        var menuStrip = this.menuStrip;
                         if (menuStrip != null)
                         {
-                            menuStrip.BackColor = codeTextBox.BackColor;
-                            menuStrip.ForeColor = codeTextBox.ForeColor;
+                            menuStrip.BackColor = settingsConfig.BackColor;
+                            menuStrip.ForeColor = settingsConfig.ForeColor;
                         }
                         
+                        var editorPanel = this.editorPanel;
                         if (editorPanel != null)
                         {
-                            editorPanel.BackColor = editorPanel.BackColor;
-                            editorPanel.ForeColor = editorPanel.ForeColor;
+                            editorPanel.BackColor = settingsConfig.BorderColor;
+                            editorPanel.ForeColor = settingsConfig.ForeColor;
                         }
                     }
                     catch (Exception e)

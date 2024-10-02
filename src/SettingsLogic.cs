@@ -180,19 +180,51 @@ namespace StarEngine2025
 
                         control.BackColor = backgroundColor;
                         control.ForeColor = textColor;
-                        control.BackColor = borderColor;
-                        control.Font = font;
+                    	control.Font = font;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Path '{styleFilePath}' not found.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                MessageBox.Show("An error occurred while applying the style.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-                        if (control is TextBox textBox)
+
+        public static void ApplyStyle(string theme, List<Settings> list)
+        {
+            try
+            {
+                string styleFilePath = Path.Combine(stylesDirectory, $"{theme}Mode.json");
+                if (File.Exists(styleFilePath))
+                {
+                    var jsonData = File.ReadAllText(styleFilePath);
+                    var themeSettings = ParseThemeSettings(jsonData);
+                    if (themeSettings != null)
+                    {
+                        Color backgroundColor = Color.FromArgb(themeSettings.BackgroundColor[0], themeSettings.BackgroundColor[1], themeSettings.BackgroundColor[2]);
+                        Color textColor = Color.FromArgb(themeSettings.TextColor[0], themeSettings.TextColor[1], themeSettings.TextColor[2]);
+                        Color borderColor = Color.FromArgb(themeSettings.BorderColor[0], themeSettings.BorderColor[1], themeSettings.BorderColor[2]);
+                        Font font;
+
+                        if (Enum.TryParse(typeof(FontStyle), themeSettings.FontStyle, true, out var fontStyle))
                         {
-                            textBox.BackColor = backgroundColor;
-                            textBox.ForeColor = textColor;
+                            font = new Font(themeSettings.FontFamily, themeSettings.FontSize, (FontStyle)fontStyle);
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Invalid FontStyle '{themeSettings.FontStyle}'. Using default FontStyle.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            font = new Font(themeSettings.FontFamily, themeSettings.FontSize, FontStyle.Regular);
                         }
 
-                        if (control is Panel panel)
-                        {
-                            panel.BackColor = borderColor;
-                        }
+                        settingsConfig.BackColor = backgroundColor;
+                        settingsConfig.ForeColor = textColor;
+                        settingsConfig.BorderColor = borderColor;
                     }
                 }
                 else
