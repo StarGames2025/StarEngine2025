@@ -1,0 +1,92 @@
+{
+    "name": "Light Theme",
+    "background": {
+        "color": "#ffffff",
+        "image": null,
+        "imageOpacity": 0.5,
+        "imagePosition": "center",
+        "imageRepeat": "no-repeat"
+    },
+    "editor": {
+        "fontFamily": "Arial, sans-serif",
+        "fontSize": 14,
+        "lineHeight": 1.5,
+        "letterSpacing": 0.5,
+        "cursorColor": "#000000",
+        "cursorStyle": "line",
+        "wordWrap": true,
+        "tabSize": 4,
+        "autoIndent": true,
+        "highlightActiveLine": true,
+        "highlightCurrentLine": true,
+        "lineNumbers": true
+    },
+    "colors": {
+        "foreground": "#000000",
+        "background": "#ffffff",
+        "selectionBackground": "#cce5ff",
+        "lineHighlight": "#f0f0f0",
+        "caret": "#000000",
+        "comment": "#7a7a7a",
+        "keyword": "#007bff",
+        "string": "#dc3545",
+        "number": "#28a745",
+        "function": "#17a2b8",
+        "variable": "#6c757d",
+        "type": "#6f42c1",
+        "error": "#dc3545",
+        "warning": "#ffc107"
+    },
+    "border": {
+        "color": "#ced4da",
+        "width": "1px",
+        "style": "solid"
+    },
+    "button": {
+        "backgroundColor": "#007bff",
+        "color": "#ffffff",
+        "borderRadius": "4px",
+        "hoverBackgroundColor": "#0056b3",
+        "hoverColor": "#ffffff"
+    },
+    "input": {
+        "backgroundColor": "#ffffff",
+        "color": "#000000",
+        "borderColor": "#ced4da",
+        "borderRadius": "4px",
+        "focusBorderColor": "#007bff"
+    },
+    "sidebar": {
+        "backgroundColor": "#f8f9fa",
+        "color": "#000000",
+        "width": "250px",
+        "border": {
+            "color": "#ced4da",
+            "width": "1px",
+            "style": "solid"
+        }
+    },
+    "statusBar": {
+        "backgroundColor": "#e9ecef",
+        "color": "#000000"
+    },
+    "tabs": {
+        "backgroundColor": "#f8f9fa",
+        "activeColor": "#007bff",
+        "inactiveColor": "#6c757d",
+        "borderColor": "#ced4da"
+    },
+    "scrollbar": {
+        "width": "8px",
+        "color": "#ced4da",
+        "hoverColor": "#adb5bd"
+    },
+    "notifications": {
+        "backgroundColor": "#ffffff",
+        "color": "#000000",
+        "errorBackgroundColor": "#dc3545",
+        "errorColor": "#ffffff",
+        "warningBackgroundColor": "#ffc107",
+        "warningColor": "#000000"
+    }
+}

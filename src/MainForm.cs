@@ -9,14 +9,23 @@ namespace StarEngine2025
 {
     public class Settings
     {
-        public Color backgroundColor;
-        public Color ForeColor;
-        public Color borderColor;
+        public int[] backgroundColor { get; set; }
+        public int[] textColor { get; set; }
+        public int[] borderColor { get; set; }
+        public int fontSize { get; set; }
+        public string fontStyle { get; set; }
     }
 
     public class MainForm : Form
     {
-        List<Settings> settingsConfig = new List<Settings>();
+        public static settings Default => new settings
+        {
+            backgroundColor = new int[] { 255, 255, 255 }, 
+            textColor = new int[] { 0, 0, 0 },
+            borderColor = new int[] { 245, 245, 220 },
+            fontSize = 12,
+            fontStyle = "Regular"
+       };
         private TextBox codeTextBox;
         private Panel editorPanel;
         private MenuStrip menuStrip;
@@ -52,21 +61,9 @@ namespace StarEngine2025
             LoadSettings();
         }
 
-        private static string relativePathmaker(string relativePath)
-        {
-            string combinedPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
-            return Path.GetFullPath(combinedPath);
-        }
-
-        public static void settingsloader()
-        {
-            MainForm formInstance = new MainForm();
-            formInstance.LoadSettings();
-        }
-
         private void LoadSettings()
         {
-            string settingsPath = relativePathmaker("../UI/settings.json");
+            string settingsPath = pathHelper.RelativePathMaker("../UI/settings.json");
 
             if (!File.Exists(settingsPath))
             {
@@ -84,28 +81,27 @@ namespace StarEngine2025
                 {
                     try
                     {
-                        SettingsLogic.ApplyStyle(theme, this);
                         SettingsLogic.ApplyStyle(theme, settingsConfig);
 
                         var codeTextBox = this.codeTextBox;
                         if (codeTextBox != null)
                         {
-                            codetextBox.BackColor = settingsConfig.BackColor;
-                            codeTextBox.ForeColor = settingsConfig.ForeColor;
+                            codetextBox.BackColor = settingsConfig.backColor;
+                            codeTextBox.ForeColor = settingsConfig.foreColor;
                         }
 
                         var menuStrip = this.menuStrip;
                         if (menuStrip != null)
                         {
-                            menuStrip.BackColor = settingsConfig.BackColor;
-                            menuStrip.ForeColor = settingsConfig.ForeColor;
+                            menuStrip.BackColor = settingsConfig.backColor;
+                            menuStrip.ForeColor = settingsConfig.foreColor;
                         }
                         
                         var editorPanel = this.editorPanel;
                         if (editorPanel != null)
                         {
-                            editorPanel.BackColor = settingsConfig.BorderColor;
-                            editorPanel.ForeColor = settingsConfig.ForeColor;
+                            editorPanel.BackColor = settingsConfig.borderColor;
+                            editorPanel.ForeColor = settingsConfig.foreColor;
                         }
                     }
                     catch (Exception e)
@@ -117,36 +113,6 @@ namespace StarEngine2025
                     }
                 }          
             }
-        }
-
-        private Dictionary<string, string> ParseJsonToDictionary(string json)
-        {
-            var result = new Dictionary<string, string>();
-            json = json.Trim().Trim('{', '}');
-
-            if (string.IsNullOrEmpty(json))
-            {
-                MessageBox.Show("JSON is empty or incorrectly formatted.");
-                return result;
-            }
-
-            var pairs = json.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            
-            foreach (var pair in pairs)
-            {
-                var keyValue = pair.Split(new[] { ':' }, 2);
-                if (keyValue.Length == 2)
-                {
-                    var key = keyValue[0].Trim().Trim('"');
-                    var value = keyValue[1].Trim().Trim('"');
-                    result[key] = value;
-                }
-                else
-                {
-                    MessageBox.Show($"Invalid pair format: {pair}");
-                }
-            }
-            return result;
         }
 
         private void InitializeMenu()
