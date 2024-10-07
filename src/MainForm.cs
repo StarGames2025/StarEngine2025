@@ -35,14 +35,22 @@ namespace StarEngine2025
                     MessageBox.Show("Die Icon-Datei wurde nicht gefunden: " + iconPath);
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                MessageBox.Show("Fehler beim Laden des Icons: " + ex.Message);
+                MessageBox.Show("Fehler beim Laden des Icons: " + e.Message);
             }
 
             InitializeMenu();
             InitializeEditor();
-            LoadSettings();
+            try
+            {
+                LoadSettings();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Fehler beim LoadSettings: " + e.Message);
+                Console.WriteLine(e.Message);
+            }
         }
 
         private void LoadSettings()

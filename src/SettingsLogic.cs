@@ -18,10 +18,10 @@ namespace StarEngine2025
             string themeName = settingsConfig.ThemeName;
             ThemeLoader(PathHelper.RelativePathMaker(themeDirectory + "/" + themeName + ".json"));
 
-            switch (themeName)
-            {
-                    //pass
-            }
+            //switch (themeName)
+            //{
+            //
+            //}
         }
         
         private static void ThemeLoader(string themeFilePath)
